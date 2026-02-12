@@ -1,9 +1,8 @@
-'''
-Module for the churn library
-
+"""
+This library has all the functions needed for churn prediction.
 Author: Belen Esteve
 Date: Feb 2026
-'''
+"""
 # pylint: disable=too-many-locals, too-many-statements,
 # too-many-arguments, import-error
 
@@ -29,24 +28,24 @@ import constants
 sns.set()
 matplotlib.use("Agg")
 
-os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
 logging.basicConfig(
     filename=constants.LOGS_PATH,
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 
 def import_data(pth):
-    '''
-    Returns dataframe for the csv found at pth
+    """
+    Import data from a csv file. 
 
     input:
             pth: a path to the csv
     output:
             csv_df: pandas dataframe
-    '''
+    """
     try:
         csv_df = pd.read_csv(pth)
         logging.info("Data imported successfully from: %s", pth)
@@ -58,15 +57,14 @@ def import_data(pth):
 
 
 def perform_eda(csv_df):
-    '''
-    Perform eda on df and save figures to images folder
+    """
+    Perform eda on df and save figures to images folder.
 
     input:
             csv_df: pandas dataframe
-
     output:
             None
-    '''
+    """
     logging.info("Dataframe head:\n%s", csv_df.head())
 
     logging.info("Dataframe shape:\n%s", csv_df.shape)
@@ -74,13 +72,13 @@ def perform_eda(csv_df):
     logging.info("Dataframe description:\n%s", csv_df.describe())
 
     logging.info("Attrition_flag")
-    logging.info(csv_df['Attrition_Flag'])
+    logging.info(csv_df["Attrition_Flag"])
 
-    csv_df[constants.OUTPUT_COLUMN_NAME] = csv_df['Attrition_Flag'].apply(
+    csv_df[constants.OUTPUT_COLUMN_NAME] = csv_df["Attrition_Flag"].apply(
         lambda val: 0 if val == "Existing Customer" else 1)
 
     logging.info("Attrition_flag")
-    logging.info(csv_df['Attrition_Flag'])
+    logging.info(csv_df["Attrition_Flag"])
 
     # Ensure the directory exists or create it
     if not os.path.exists(constants.EDA_FOLDER_PATH):
@@ -91,28 +89,28 @@ def perform_eda(csv_df):
     save_figure(constants.EDA_FOLDER_PATH + constants.CHURN_LABELS_FIGURE)
 
     plt.figure(figsize=(20, 10))
-    csv_df['Customer_Age'].hist()
+    csv_df["Customer_Age"].hist()
     save_figure(constants.EDA_FOLDER_PATH + constants.CUSTOMER_AGE_FIGURE)
 
     plt.figure(figsize=(20, 10))
-    csv_df.Marital_Status.value_counts('normalize').plot(kind='bar')
+    csv_df.Marital_Status.value_counts("normalize").plot(kind="bar")
     save_figure(constants.EDA_FOLDER_PATH + constants.MARITAL_STATUS_FIGURE)
 
     plt.figure(figsize=(20, 10))
-    # Show distributions of 'Total_Trans_Ct' and add a smooth curve obtained
+    # Show distributions of "Total_Trans_Ct" and add a smooth curve obtained
     # using a kernel density estimate
-    sns.histplot(csv_df['Total_Trans_Ct'], stat='density', kde=True)
+    sns.histplot(csv_df["Total_Trans_Ct"], stat="density", kde=True)
     save_figure(constants.EDA_FOLDER_PATH + constants.TOTAL_TRANS_CT_FIGURE)
 
     plt.figure(figsize=(20, 10))
-    numeric_df = csv_df.select_dtypes(include='number')
-    sns.heatmap(numeric_df.corr(), annot=False, cmap='Dark2_r', linewidths=2)
+    numeric_df = csv_df.select_dtypes(include="number")
+    sns.heatmap(numeric_df.corr(), annot=False, cmap="Dark2_r", linewidths=2)
     save_figure(constants.EDA_FOLDER_PATH + constants.HEATMAP_FIGURE)
 
 
-def encoder_helper(csv_df, category_lst, response='Churn'):
-    '''
-    helper function to turn each categorical column into a new column with
+def encoder_helper(csv_df, category_lst, response="Churn"):
+    """
+    Helper function to turn each categorical column into a new column with
     propotion of churn for each category - associated with cell 15 from the notebook
 
     input:
@@ -120,13 +118,12 @@ def encoder_helper(csv_df, category_lst, response='Churn'):
             category_lst: list of columns that contain categorical features
             response: string of response name [optional argument that could be used for
              naming variables or index labels column]
-
     output:
             csv_df: pandas dataframe with new columns for
-    '''
+    """
     for category in category_lst:
         try:
-            csv_df[f'{category}_{response}'] = csv_df[category].map(
+            csv_df[f"{category}_{response}"] = csv_df[category].map(
                 csv_df.groupby(category)[response].mean())
         except KeyError:
             logging.error(
@@ -137,19 +134,20 @@ def encoder_helper(csv_df, category_lst, response='Churn'):
     return csv_df
 
 
-def perform_feature_engineering(csv_df, response='Churn'):
-    '''
-    input:
-              csv_df: pandas dataframe
-              response: string of response name [optional argument that could be used for
-              naming variables or index labels column]
+def perform_feature_engineering(csv_df, response="Churn"):
+    """
+    Perform feature engineering on a dataframe.
 
+    input:
+            csv_df: pandas dataframe
+            response: string of response name [optional argument that could be used for
+            naming variables or index labels column]
     output:
-              x_train: x training data
-              x_test: x testing data
-              y_train: labels training data
-              y_test: labels testing data
-    '''
+            x_train: x training data
+            x_test: x testing data
+            y_train: labels training data
+            y_test: labels testing data
+    """
     labels = csv_df[constants.OUTPUT_COLUMN_NAME]
     features = pd.DataFrame()
 
@@ -157,7 +155,7 @@ def perform_feature_engineering(csv_df, response='Churn'):
     csv_df = encoder_helper(csv_df, constants.CATEGORY_COLUMNS_LIST, response)
 
     keep_cols = constants.QUANT_COLUMNS_LIST + \
-        [f'{col}_{response}' for col in constants.CATEGORY_COLUMNS_LIST]
+        [f"{col}_{response}" for col in constants.CATEGORY_COLUMNS_LIST]
 
     features[keep_cols] = csv_df[keep_cols]
 
@@ -173,45 +171,45 @@ def classification_report_image(y_train,
                                 y_train_preds,
                                 y_test_preds,
                                 model_name):
-    '''
-    produces classification report for training and testing results and stores report as image
-    in images folder
+    """
+    Create classification report for training and testing results and stores report as image
+    in images folder.
+
     input:
             y_train: training response values
             y_test:  test response values
             y_train_preds: training predictions from a model
             y_test_preds: test predictions from a model
             model_name: str with the model name
-
     output:
-             None
-    '''
+            None
+    """
     plt.figure(figsize=(5, 5))
-    plt.text(0.01, 1.25, str(f'{model_name} Train'), {
-             'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 1.25, str(f"{model_name} Train"), {
+             "fontsize": 10}, fontproperties="monospace")
     plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds)), {
-             'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
-    plt.text(0.01, 0.6, str(f'{model_name} Test'), {
-             'fontsize': 10}, fontproperties='monospace')
+             "fontsize": 10}, fontproperties="monospace")  # approach improved by OP -> monospace!
+    plt.text(0.01, 0.6, str(f"{model_name} Test"), {
+             "fontsize": 10}, fontproperties="monospace")
     plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds)), {
-             'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
-    plt.axis('off')
+             "fontsize": 10}, fontproperties="monospace")  # approach improved by OP -> monospace!
+    plt.axis("off")
 
     save_figure(constants.RESULTS_FOLDER_PATH + model_name +
                 "_" + constants.CLASSIFICATION_REPORT_FIGURE)
 
 
 def feature_importance_plot(model, x_data, output_pth):
-    '''
-    creates and stores the feature importances in pth
+    """
+    Generate feature importance plot and save it to the specified path.
+
     input:
             model: model object containing feature_importances_
             x_data: pandas dataframe of x values
             output_pth: path to store the figure
-
     output:
-             None
-    '''
+            None
+    """
     best_estimator = get_best_estimator(model)
     # Calculate feature importances
     importances = best_estimator.feature_importances_
@@ -226,7 +224,7 @@ def feature_importance_plot(model, x_data, output_pth):
 
     # Create plot title
     plt.title("Feature Importance")
-    plt.ylabel('Importance')
+    plt.ylabel("Importance")
 
     # Add bars
     plt.bar(range(x_data.shape[1]), importances[indices])
@@ -237,16 +235,18 @@ def feature_importance_plot(model, x_data, output_pth):
 
 
 def train_models(x_train, x_test, y_train, y_test):
-    '''
-    train, store model results: images + scores, and store models
+    """
+    Train and store models results, checkpoints for random 
+    forest and logistic regression.
+
     input:
-              x_train: x training data
-              x_test: x testing data
-              y_train: labels training data
-              y_test: labels testing data
+            x_train: x training data
+            x_test: x testing data
+            y_train: labels training data
+            y_test: labels testing data
     output:
-              None
-    '''
+            None
+    """
     # Create results and model folders if they do not not exist
     if not os.path.exists(constants.RESULTS_FOLDER_PATH):
         os.makedirs(constants.RESULTS_FOLDER_PATH)
@@ -254,19 +254,19 @@ def train_models(x_train, x_test, y_train, y_test):
     if not os.path.exists(constants.MODELS_FOLDER_PATH):
         os.makedirs(constants.MODELS_FOLDER_PATH)
 
-    # Use a different solver if the default 'lbfgs' fails to converge
+    # Use a different solver if the default "lbfgs" fails to converge
     # Reference:
     # https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
-    lrc = LogisticRegression(solver='lbfgs', max_iter=3000)
+    lrc = LogisticRegression(solver="lbfgs", max_iter=3000)
     lrc_model_data = [lrc, constants.LR_MODEL_NAME]
     lrc, lrc_best_model = train_model(
         lrc_model_data, x_train, x_test, y_train, y_test)
 
     param_grid = {
-        'n_estimators': [200, 500],
-        'max_features': ['sqrt'],
-        'max_depth': [4, 5, 100],
-        'criterion': ['gini', 'entropy']
+        "n_estimators": [200, 500],
+        "max_features": ["sqrt"],
+        "max_depth": [4, 5, 100],
+        "criterion": ["gini", "entropy"]
     }
 
     # grid search
@@ -293,9 +293,9 @@ def train_models(x_train, x_test, y_train, y_test):
     save_figure(
         constants.RESULTS_FOLDER_PATH +
         constants.LR_MODEL_NAME +
-        '_' +
+        "_" +
         constants.RFC_MODEL_NAME +
-        '_' +
+        "_" +
         constants.ROC_CURVES_FIGURE)
 
     # Plot with best models
@@ -309,15 +309,16 @@ def train_models(x_train, x_test, y_train, y_test):
     save_figure(
         constants.RESULTS_FOLDER_PATH +
         constants.LR_MODEL_NAME +
-        '_' +
+        "_" +
         constants.RFC_MODEL_NAME +
-        '_best_' +
+        "_best_" +
         constants.ROC_CURVES_FIGURE)
 
 
 def train_model(model_data, x_train, x_test, y_train, y_test):
-    '''
-    train, store model results: images + scores, and store models
+    """
+    Train and store model results and checkpoint.
+
     input:
             model_data: duple of model to be trained and its name
             x_train: x training data
@@ -327,7 +328,7 @@ def train_model(model_data, x_train, x_test, y_train, y_test):
     output:
             model: trained_model
             best_model: selected best model
-    '''
+    """
     model, model_name = model_data
 
     # Train model
@@ -339,15 +340,15 @@ def train_model(model_data, x_train, x_test, y_train, y_test):
     y_test_preds = best_estimator.predict(x_test)
 
     # scores
-    logging.info('%s results', model_name)
-    logging.info('test results')
+    logging.info("%s results", model_name)
+    logging.info("test results")
     logging.info(classification_report(y_test, y_test_preds))
-    logging.info('train results')
+    logging.info("train results")
     logging.info(classification_report(y_train, y_train_preds))
 
     # save best model
     model_file_path = constants.MODELS_FOLDER_PATH + \
-        model_name + '_' + constants.MODEL_FILENAME
+        model_name + "_" + constants.MODEL_FILENAME
 
     joblib.dump(best_estimator, model_file_path)
     best_model = joblib.load(model_file_path)
@@ -367,21 +368,21 @@ def train_model(model_data, x_train, x_test, y_train, y_test):
 
 
 def explain_features(model_data, x_test):
-    '''
-    Obtains the SHAP values of a model and saves its feature importance
+    """
+    Obtain the SHAP values of a model and save its feature importance.
 
     input:
             model_data: duple of model to be trained and its name
             x_test: x testing data
     output:
             None
-    '''
+    """
     model, model_name = model_data
 
     if not isinstance(model, GridSearchCV):
         raise ValueError(
-            f"Undifined model type {
-                type(model)} for feature explanation")
+            f"Undefined model type {type(model)} for feature explanation"
+        )
 
     best_estimator = get_best_estimator(model)
     explainer = shap.TreeExplainer(best_estimator)
@@ -395,24 +396,24 @@ def explain_features(model_data, x_test):
     save_figure(
         constants.RESULTS_FOLDER_PATH +
         model_name +
-        '_' +
+        "_" +
         constants.SHAP_FIGURE)
 
     feature_importance_plot(model, x_test,
-                            constants.RESULTS_FOLDER_PATH + model_name + '_'
+                            constants.RESULTS_FOLDER_PATH + model_name + "_"
                             + constants.FEATURE_IMPORTANCE_FIGURE)
 
 
 def save_figure(output_path):
-    '''
-    Helper function to save a figure in the indicated path
+    """
+    Helper function to save a figure in the indicated path.
 
     input:
             output_path: str to the path where the image will be stored
 
     output:
             None
-    '''
+    """
     fig = plt.gcf()
     fig.tight_layout()
     fig.savefig(output_path, dpi=300, bbox_inches="tight")
@@ -420,14 +421,14 @@ def save_figure(output_path):
 
 
 def get_best_estimator(model):
-    '''
-    Returns the model best estimator depending on its class
+    """
+    Get the model best estimator depending on its class.
 
     input:
             model: model to get the best estimator from
     output:
             best_estimator: best estimator of the model
-    '''
+    """
     if isinstance(model, LogisticRegression):
         best_estimator = model
     elif isinstance(model, GridSearchCV):
