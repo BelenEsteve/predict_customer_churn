@@ -1,10 +1,29 @@
 # Predict Customer Churn
 
-- Project **Predict Customer Churn** of ML DevOps Engineer Nanodegree Udacity
+> ML DevOps Engineer Nanodegree Project – Udacity
+>
+> Production-ready churn prediction pipeline with logging, testing, and model interpretability.
 
-## Project Description
-This repo performs data analysis, trains a model and predicts the likelihood of the clients to be churn. 
-This project builds a machine learning pipeline that:
+## Table of contents
+- [Overview](#overview)
+- [Project Motivation](#project-motivation)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Dataset](#dataset)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Testing](#testing)
+- [Logging](#logging)
+- [Data Analysis](#data-analysis)
+- [Model Artifacts](#model-artifacts)
+- [Technologies Used](#technologies-used)
+- [ML Engineering Highlights](#ml-engineering-highlights)
+- [License](#license)
+
+## Overview
+This project builds an end-to-end machine learning pipeline to predict customer churn using historical banking data.
+
+The pipeline:
 - Performs exploratory data analysis (EDA)
 - Conducts feature engineering
 - Trains classification models
@@ -13,11 +32,45 @@ This project builds a machine learning pipeline that:
 - Logs execution steps
 - Includes unit testing for production readiness
 
-The goal is to predict whether a customer will churn based on historical banking data.
+The goal is to identify customers at risk of churn and support data-driven retention strategies.
 
-## Files and data description
+## Project Motivation
 
-### Project structure
+Customer churn is a critical business problem. Acquiring new customers is often more expensive than retaining existing ones.
+
+This project demonstrates:
+- Building a production-style ML pipeline
+- Applying ML DevOps best practices
+- Writing testable and maintainable code
+- Logging and monitoring ML workflows
+- Ensuring reproducibility
+
+This repository is designed to reflect industry-level ML engineering standards.
+
+## Features
+
+✔ Modular ML pipeline
+
+✔ Feature encoding with target-based encoding
+
+✔ Logistic Regression & Random Forest models
+
+✔ GridSearch hyperparameter tuning
+
+✔ ROC curve evaluation
+
+✔ SHAP interpretability
+
+✔ Feature importance visualization
+
+✔ Automated unit testing
+
+✔ Structured logging
+
+✔ Artifact persistence (models & plots)
+
+
+## Project Structure
 ```
 predict_customer_churn/
 │
@@ -51,31 +104,40 @@ predict_customer_churn/
 └── LICENSE
 ```
 
-### Dataset
-The dataset used in this project contains customer demographic information, account activity, and transaction behavior used to predict churn. It is accessible at:
+## Dataset
 
+The dataset contains:
+- Customer demographics
+- Account information
+- Transaction behavior
+- Attrition labels
+
+Location:
 ```
 data/bank_data.csv
 ```
+The target variable is derived from:
+```
+Attrition_Flag
+```
 
-## Running Files
-
-### Installation
+## Installation
 Create a virtual environment (recommended):
 
 ```bash
 python -m venv venv
 source venv/bin/activate  # Mac/Linux
-venv\Scripts\activate     # Windows
+#venv\Scripts\activate     # Windows
 ```
 Install dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
-### Execution
 
-#### Main Pipeline
+## Usage
+
+#### Run Main Pipeline
 This performs:
 - Data loading
 - EDA
@@ -88,18 +150,89 @@ This performs:
 ```bash
 python predict_customer_churn/churn_library.py
 ```
+The logging generated is in `logs/churn_logs.log`.
 
 #### Unit Tests
-There is a test per function in churn_library, and they can be executed using:
+Unit tests cover all major functions in `churn_library.py`.
+
+Run:
 
 ```bash
 pytest -s predict_customer_churn/churn_script_logging_and_tests.py > predict_customer_churn/logs/test_logs.log
 ```
 
-#### Logging
-Logs are stored in /logs:
+This generates `logs/test_logs.log`.
 
+All functions are validated for:
+- Data integrity
+- Feature engineering correctness
+- Model training
+- Model saving
+- Artifact generation
+
+
+## Logging
+Logs are stored in `predict_customer/logs`:
+
+| File             | Description                  |
+| ---------------- | ---------------------------- |
+| `churn_logs.log` | Main pipeline execution logs |
+| `test_logs.log`  | Pytest execution logs        |
+
+Logging ensures traceability and debugging capability.
+
+## Data Analysis
+
+Saved analysis include:
+- Distribution of labels
+- Distribution of some attributes
+- Heatmap of correlation between attributes
+
+Stored in:
 ```
-churn_logs.log # Outcome of main script
-test_logs.log # Outcome of pytest
+images/eda/
 ```
+
+## Model Artifacts
+
+Saved artifacts include:
+- Trained Logistic Regression model
+- Trained Random Forest model
+- ROC curves
+- SHAP summary plot
+- Feature importance plots
+- Classification reports
+
+Stored in:
+```
+models/
+images/results/
+```
+
+## Technologies Used
+
+- Python 3.10+
+- pandas
+- NumPy
+- scikit-learn
+- matplotlib
+- seaborn
+- SHAP
+- pytest
+- joblib
+
+## ML Engineering Highlights
+
+This project demonstrates:
+- Reproducible ML pipelines
+- Separation of concerns
+- Logging best practices
+- Robust testing
+- Model interpretability
+- Artifact management
+
+## License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+
+See the LICENSE file for details.
