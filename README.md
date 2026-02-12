@@ -19,6 +19,8 @@
 - [Technologies Used](#technologies-used)
 - [ML Engineering Highlights](#ml-engineering-highlights)
 - [License](#license)
+- [Contact Information](#contact-information)
+- [Aknowledgments](#acknowledgments)
 
 ## Overview
 This project builds an end-to-end machine learning pipeline to predict customer churn using historical banking data.
@@ -236,3 +238,20 @@ This project demonstrates:
 This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
 
 See the LICENSE file for details.
+
+## Contact Information
+
+If you would like to discuss this project or explore collaboration opportunities:
+
+**Belen Esteve Cogollos**
+Computer Vision & MLOps Engineer
+
+- GitHub: https://github.com/BelenEsteve
+- LinkedIn: https://www.linkedin.com/in/belenestevecogollos
+- Email: belen.esteve.co@gmail.com
+
+## Acknowledgments
+
+This repository was developed as part of the Udacity Machine Learning DevOps Engineer Nanodegree.
+
+It leverages several open-source libraries maintained by the global developer community. Their work makes modern machine learning development possible.
