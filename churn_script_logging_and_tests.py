@@ -1,9 +1,9 @@
-'''
+"""
 Unit Tests script for churn_library.py
 
 Author: Belen Esteve
 Date: Feb 2026
-'''
+"""
 import os
 import pytest
 
@@ -19,34 +19,24 @@ import constants
 
 @pytest.fixture(scope="module")
 def csv_path():
-    '''
-    Returns the path to the bank csv file
-    '''
+    """Returns the path to the bank csv file"""
     return constants.BANK_DATA_CSV_PATH
 
 
 @pytest.fixture(scope="module")
-def bank_df(csv_path):
-    '''
-    Returns a dataframe out of the first 50 samples from
-    the bank csv file
-    '''
+def data_df(csv_path):
+    """Get small sample from dataframe for quick testing"""
     return pd.read_csv(csv_path).head(50)
 
 
 @pytest.fixture(scope="module")
 def param_grid():
-    '''
-    Retruns a param grid dictionary for Gris Search Algorithm
-    '''
+    """Get dummy a param grid for testing"""
     return {"n_estimators": [10]}
 
 
 def test_import(csv_path):
-    '''
-    Test data import - this example is completed for you
-    to assist with the other test functions
-    '''
+    """Test data import"""
     try:
         df = cls.import_data(csv_path)
         print("Testing import_data: SUCCESS")
@@ -64,11 +54,9 @@ def test_import(csv_path):
         raise err
 
 
-def test_eda(bank_df):
-    '''
-    Test perform eda function
-    '''
-    cls.perform_eda(bank_df)
+def test_eda(data_df):
+    """Test perform eda function"""
+    cls.perform_eda(data_df)
 
     eda_files = [
         constants.CHURN_LABELS_FIGURE,
@@ -88,12 +76,10 @@ def test_eda(bank_df):
         raise err
 
 
-def test_encoder_helper(bank_df):
-    '''
-    Test encoder helper
-    '''
+def test_encoder_helper(data_df):
+    """Test encoder helper"""
     df_encoded = cls.encoder_helper(
-        bank_df,
+        data_df,
         constants.CATEGORY_COLUMNS_LIST,
         response=constants.OUTPUT_COLUMN_NAME
     )
@@ -113,12 +99,10 @@ def test_encoder_helper(bank_df):
         raise err
 
 
-def test_perform_feature_engineering(bank_df):
-    '''
-    Test perform_feature_engineering
-    '''
+def test_perform_feature_engineering(data_df):
+    """Test perform_feature_engineering"""
     x_train, x_test, y_train, y_test = cls.perform_feature_engineering(
-        bank_df,
+        data_df,
         response=constants.OUTPUT_COLUMN_NAME
     )
 
@@ -128,9 +112,10 @@ def test_perform_feature_engineering(bank_df):
         assert y_train.shape[0] > 0, "y_train shape[0] cannot be 0"
         assert y_test.shape[0] > 0, "y_test shape[0] cannot be 0"
 
-        assert x_train.shape[1] == x_test.shape[1], (f"x_train.shape[1]={
-            x_train.shape[1]} and x_test.shape[1]={
-            x_test.shape[1]}, " + "but they should be equal")
+        assert x_train.shape[1] == x_test.shape[1], (
+            f"x_train.shape[1]={x_train.shape[1]} " +
+            f"and x_test.shape[1]={x_test.shape[1]}, but they should be equal"
+        )
         assert y_train.ndim == 1, (
             f"y_train.dim should be 1 but it is {y_train.ndim}"
         )
@@ -143,12 +128,10 @@ def test_perform_feature_engineering(bank_df):
         raise err
 
 
-def test_train_models(bank_df):
-    '''
-    Test train_models
-    '''
+def test_train_models(data_df):
+    """Test train_models"""
     x_train, x_test, y_train, y_test = cls.perform_feature_engineering(
-        bank_df,
+        data_df,
         response=constants.OUTPUT_COLUMN_NAME
     )
 
@@ -157,21 +140,21 @@ def test_train_models(bank_df):
     # Check model artifact
     model_path = os.path.join(
         constants.MODELS_FOLDER_PATH,
-        constants.RFC_MODEL_NAME + '_' + constants.MODEL_FILENAME
+        constants.RFC_MODEL_NAME + "_" + constants.MODEL_FILENAME
     )
 
     figures_list = [
         constants.RESULTS_FOLDER_PATH +
         constants.LR_MODEL_NAME +
-        '_' +
+        "_" +
         constants.RFC_MODEL_NAME +
-        '_' +
+        "_" +
         constants.ROC_CURVES_FIGURE,
         constants.RESULTS_FOLDER_PATH +
         constants.LR_MODEL_NAME +
-        '_' +
+        "_" +
         constants.RFC_MODEL_NAME +
-        '_best_' +
+        "_best_" +
         constants.ROC_CURVES_FIGURE]
 
     try:
@@ -192,15 +175,13 @@ def test_train_models(bank_df):
         raise err
 
 
-def test_train_model(bank_df):
-    '''
-    Test train_model
-    '''
+def test_train_model(data_df):
+    """Test train_model"""
     x_train, x_test, y_train, y_test = cls.perform_feature_engineering(
-        bank_df,
+        data_df,
         response=constants.OUTPUT_COLUMN_NAME
     )
-    lrc = LogisticRegression(solver='lbfgs', max_iter=30)
+    lrc = LogisticRegression(solver="lbfgs", max_iter=30)
     model_name = constants.LR_MODEL_NAME
     lrc_model_data = [lrc, model_name]
     lrc, _ = cls.train_model(
@@ -208,7 +189,7 @@ def test_train_model(bank_df):
 
     files_list = [
         constants.MODELS_FOLDER_PATH +
-        model_name + '_' + constants.MODEL_FILENAME,
+        model_name + "_" + constants.MODEL_FILENAME,
     ]
     try:
         for file in files_list:
@@ -220,9 +201,7 @@ def test_train_model(bank_df):
 
 
 def test_save_figure(tmp_path):
-    '''
-    Test save_figure
-    '''
+    """Test save_figure"""
     test_path = tmp_path / "test_plot.png"
 
     # Create dummy plot
@@ -230,8 +209,9 @@ def test_save_figure(tmp_path):
     cls.save_figure(str(test_path))
 
     try:
-        assert test_path.exists(), f"Figure image {
-            str(test_path)} does not exist"
+        assert test_path.exists(), (
+            f"Figure image {str(test_path)} does not exist"
+        )
         print("Testing save_figure: SUCCESS")
     except AssertionError as err:
         print(f"Testing save_figure: FAILED - {err}")
@@ -239,9 +219,7 @@ def test_save_figure(tmp_path):
 
 
 def test_get_best_estimator_logistic():
-    '''
-    Test get_best_estimator for LogisticRegression model
-    '''
+    """Test get_best_estimator for LogisticRegression model"""
     model = LogisticRegression()
     best = cls.get_best_estimator(model)
 
@@ -256,9 +234,7 @@ def test_get_best_estimator_logistic():
 
 
 def test_get_best_estimator_gridsearch(param_grid):
-    '''
-    Test get_best_estimator for GridSearch model
-    '''
+    """Test get_best_estimator for GridSearch model"""
     gs = GridSearchCV(
         RandomForestClassifier(random_state=constants.RANDOM_SEED),
         param_grid=param_grid,
@@ -282,12 +258,10 @@ def test_get_best_estimator_gridsearch(param_grid):
         raise err
 
 
-def test_feature_importance_plot(bank_df, tmp_path, param_grid):
-    '''
-    Test feature_importance_plot
-    '''
+def test_feature_importance_plot(data_df, tmp_path, param_grid):
+    """Test feature_importance_plot"""
     x_train, x_test, y_train, _ = cls.perform_feature_engineering(
-        bank_df,
+        data_df,
         response=constants.OUTPUT_COLUMN_NAME
     )
 
@@ -311,12 +285,10 @@ def test_feature_importance_plot(bank_df, tmp_path, param_grid):
         raise err
 
 
-def test_explain_features_fail(bank_df):
-    '''
-    Test explain_features and fails for no GridSearch model
-    '''
+def test_explain_features_fail(data_df):
+    """Test explain_features and fails for no GridSearch model"""
     x_train, x_test, y_train, _ = cls.perform_feature_engineering(
-        bank_df,
+        data_df,
         response=constants.OUTPUT_COLUMN_NAME
     )
 
@@ -345,12 +317,10 @@ def test_explain_features_fail(bank_df):
         raise err
 
 
-def test_explain_features_works(bank_df, param_grid):
-    '''
-    Test explain_features and works for GridSearch model
-    '''
+def test_explain_features_works(data_df, param_grid):
+    """Test explain_features and works for GridSearch model"""
     x_train, x_test, y_train, _ = cls.perform_feature_engineering(
-        bank_df,
+        data_df,
         response=constants.OUTPUT_COLUMN_NAME
     )
 
@@ -378,15 +348,13 @@ def test_explain_features_works(bank_df, param_grid):
         raise err
 
 
-def test_classification_report_image(bank_df):
-    '''
-    Test classification_report_image
-    '''
+def test_classification_report_image(data_df):
+    """Test classification_report_image"""
     x_train, x_test, y_train, y_test = cls.perform_feature_engineering(
-        bank_df,
+        data_df,
         response=constants.OUTPUT_COLUMN_NAME
     )
-    model = LogisticRegression(solver='lbfgs', max_iter=30)
+    model = LogisticRegression(solver="lbfgs", max_iter=30)
     model.fit(x_train, y_train)
 
     best_estimator = cls.get_best_estimator(model)
